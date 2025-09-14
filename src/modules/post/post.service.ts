@@ -18,26 +18,56 @@ const createPost = async(payload: Prisma.PostCreateInput): Promise<Post>=>{
 }
 
 
-const getAllPost = async() =>{
+const getAllPosts = async({page =1, limit =10, search, isFeatured, tags }: {page?: number, limit?:number, search?:string, isFeatured?: boolean, tags?:string[]}) =>{
+
+    console.log({isFeatured})
+    console.log({tags})
+    
+    const skip = (page - 1) * limit;
+    const where:any = {
+           AND :[
+            search && {
+                 OR:[
+                {title: {contains:search, mode: 'insensitive'}},
+                {content: {contains:search, mode: 'insensitive'}},
+            ]
+            },
+            typeof isFeatured === 'boolean' &&{isFeatured},
+            tags && tags.length > 0 && {tags: {hasEvery:tags}}
+           ].filter(Boolean)
+        }
     const result = await prisma.post.findMany({
-        select: {
-            id: true,
-            title: true,
-            content: true,
-            thumbnail: true,
-            authorId: true,
-            isFeatured: true,
-            tags: true,
-            createdAt: true,
-            updatedAt: true,
+        skip,
+        take: limit,
+        where,
+        include: {
+            author: true
         },
-        orderBy: { id: 'desc' }
+        
+        orderBy: { createdAt: 'desc' }
     })
-    return result
+    const total = await prisma.post.count({where})
+    return {
+        data: result,
+        pagination:{
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total/limit)
+        }
+    }
 }
 const getPostById = async(id:number) =>{
-    const result = await prisma.post.findUnique({
+    return await prisma.$transaction(async(tx) =>{
+await tx.post.update({
         where: {id},
+        data: {
+            views: { increment: 1 }
+        },
+    })
+    const postData = await tx.post.findUnique({
+        where: {id},
+        
         select: {
             id: true,
             title: true,
@@ -45,12 +75,14 @@ const getPostById = async(id:number) =>{
             thumbnail: true,
             authorId: true,
             isFeatured: true,
+            views: true,
             tags: true,
             createdAt: true,
             updatedAt: true,
         }
     })
-    return result
+    return postData
+    })
 }
 const updatePost = async(id:number, payload: Prisma.PostCreateInput): Promise<Post>=>{
     const {title, content, thumbnail, author, isFeatured, tags} = payload
@@ -76,7 +108,7 @@ const deletePost = async(id:number) =>{
 
 export const PostService = {
     createPost,
-    getAllPost,
+    getAllPosts,
     getPostById,
     updatePost,
     deletePost
