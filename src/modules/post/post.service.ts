@@ -35,6 +35,40 @@ const getAllPost = async() =>{
     })
     return result
 }
+const getPostById = async(id:number) =>{
+    const result = await prisma.post.findUnique({
+        where: {id},
+        select: {
+            id: true,
+            title: true,
+            content: true,
+            thumbnail: true,
+            authorId: true,
+            isFeatured: true,
+            tags: true,
+            createdAt: true,
+            updatedAt: true,
+        }
+    })
+    return result
+}
+const updatePost = async(id:number, payload: Prisma.PostCreateInput): Promise<Post>=>{
+    const {title, content, thumbnail, author, isFeatured, tags} = payload
+    const result = await prisma.post.update({
+        where: {id},
+        data:{
+            title, content, thumbnail, isFeatured, tags, author
+        }
+    }, )
+    return result
+}
+const deletePost = async(id:number) =>{
+    const result = await prisma.post.delete({
+        where: {id}
+        
+    })
+    return null
+}
 
 
 
@@ -42,5 +76,8 @@ const getAllPost = async() =>{
 
 export const PostService = {
     createPost,
-    getAllPost
+    getAllPost,
+    getPostById,
+    updatePost,
+    deletePost
 }

@@ -6,6 +6,9 @@ const router = express.Router()
 
 router.post("/", PostController.createPost)
 router.get("/", PostController.getAllPost)
+router.get("/:id", PostController.getPostById)
+router.patch("/:id", PostController.updatePost)
+router.delete("/:id", PostController.deletePost)
 
 
 
