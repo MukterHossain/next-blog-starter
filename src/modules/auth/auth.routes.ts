@@ -6,6 +6,7 @@ const router = express.Router()
 
 
 router.post("/login", AuthController.loginWithEmailAndPassword)
+router.post("/google", AuthController.authwithGoogle)
 
 
 

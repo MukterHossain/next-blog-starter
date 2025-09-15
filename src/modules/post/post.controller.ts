@@ -56,8 +56,8 @@ const getPostById = async(req: Request, res: Response)=>{
 }
 const updatePost = async(req: Request, res: Response)=>{
     try {
-        const { title, content, thumbnail, author, isFeatured, tags } = req.body;
-        const result = await PostService.updatePost(Number(req.params.id), { title, content, thumbnail, author, isFeatured, tags })
+        
+        const result = await PostService.updatePost(Number(req.params.id), req.body)
          res.status(201).json({
             success: true,
             message: "Post data update successfully",
@@ -86,6 +86,23 @@ const deletePost = async(req: Request, res: Response)=>{
     }       
 }
 
+const getBlogStats = async(req: Request, res: Response)=>{
+    
+    try {
+         const result = await PostService.getBlogStats()
+         res.status(201).json({
+            success: true,
+            message: "Stats data retrived successfully",
+            data:result
+        })
+    } catch (error) {
+        res.status(500).send({
+            success: false,
+            message: `Failed to fetch data: ${error}`,
+        })
+    }       
+}
+
 
 
 
@@ -94,6 +111,7 @@ export const PostController = {
     getAllPosts,
     getPostById,
     updatePost,
-    deletePost
+    deletePost,
+    getBlogStats
 
 }
