@@ -2,7 +2,7 @@ import { Post, Prisma } from "@prisma/client"
 import { prisma } from "../../config/db"
 
 const createPost = async (payload: Prisma.PostCreateInput): Promise<Post> => {
-    const createdUser = await prisma.post.create({
+    const createdPost = await prisma.post.create({
         data: payload,
         include: {
             author: {
@@ -15,7 +15,7 @@ const createPost = async (payload: Prisma.PostCreateInput): Promise<Post> => {
         }
     })
 
-    return createdUser
+    return createdPost
 
 }
 
