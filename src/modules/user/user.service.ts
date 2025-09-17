@@ -31,17 +31,21 @@ const getAllUsers = async() =>{
 const getUserById = async(id: number) =>{
     const result = await prisma.user.findUnique({
         where: {id},
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            picture: true,
-            createdAt: true,
-            updatedAt: true,
-            role: true,
-            status:true,
-            Posts: true
-        },
+        omit:{
+            password:true,
+            isVerified:true
+        }
+        // select: {
+        //     id: true,
+        //     name: true,
+        //     email: true,
+        //     picture: true,
+        //     createdAt: true,
+        //     updatedAt: true,
+        //     role: true,
+        //     status:true,
+        //     Posts: true
+        // },
     })
     return result
 }
